@@ -1,0 +1,140 @@
+/* The card frame. pointer-events: none on the body keeps the whole card
+   draggable from anywhere; tldraw handles selection/move/resize. */
+.markdown-card {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.markdown-card-body {
+  width: 100%;
+  height: 100%;
+  padding: 14px 18px;
+  overflow: hidden;
+  pointer-events: none;
+  color: #1a1a1a;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.markdown-card-body > :first-child {
+  margin-top: 0;
+}
+
+.markdown-card-body h1,
+.markdown-card-body h2,
+.markdown-card-body h3 {
+  line-height: 1.25;
+  margin: 0.8em 0 0.4em;
+}
+
+.markdown-card-body h1 {
+  font-size: 1.5em;
+}
+
+.markdown-card-body h2 {
+  font-size: 1.25em;
+}
+
+.markdown-card-body h3 {
+  font-size: 1.1em;
+}
+
+.markdown-card-body p,
+.markdown-card-body ul,
+.markdown-card-body ol {
+  margin: 0.4em 0;
+}
+
+.markdown-card-body ul,
+.markdown-card-body ol {
+  padding-left: 1.4em;
+}
+
+.markdown-card-body a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.markdown-card-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: #f3f4f6;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+.markdown-card-body pre {
+  margin: 0.5em 0;
+  padding: 10px 12px;
+  background: #f6f8fa;
+  border-radius: 6px;
+  overflow: auto;
+}
+
+.markdown-card-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+.markdown-card-body table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  font-size: 0.92em;
+}
+
+.markdown-card-body th,
+.markdown-card-body td {
+  border: 1px solid #d8d8d8;
+  padding: 4px 10px;
+  text-align: left;
+}
+
+.markdown-card-body th {
+  background: #f3f4f6;
+}
+
+.markdown-card-body blockquote {
+  margin: 0.5em 0;
+  padding-left: 0.8em;
+  border-left: 3px solid #d8d8d8;
+  color: #555;
+}
+
+/* A mermaid diagram replaces the <code> inside a <pre>; strip the code-block
+   box so the diagram sits on the card background, and fit the SVG to width. */
+.markdown-card-body pre:has(.mermaid-diagram) {
+  background: none;
+  padding: 0;
+}
+
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+  margin: 0.5em 0;
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-loading {
+  margin: 0.5em 0;
+  font-size: 0.85em;
+  color: #888;
+}
+
+.mermaid-error {
+  margin: 0.5em 0;
+  padding: 8px 10px;
+  font-size: 0.8em;
+  color: #b00020;
+  background: #fdecef;
+  border-radius: 6px;
+  white-space: pre-wrap;
+}

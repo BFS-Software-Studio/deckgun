@@ -12,12 +12,24 @@ fn load_canvas(path: String) -> Result<String, String> {
     std::fs::read_to_string(&path).map_err(|e| e.to_string())
 }
 
+// Read the text contents of a file dropped onto the window (e.g. a .md file),
+// so its markdown can be embedded into a card. Done in Rust for unrestricted
+// disk access regardless of where the file lives.
+#[tauri::command]
+fn read_text_file(path: String) -> Result<String, String> {
+    std::fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![save_canvas, load_canvas])
+        .invoke_handler(tauri::generate_handler![
+            save_canvas,
+            load_canvas,
+            read_text_file
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
