@@ -1,5 +1,6 @@
 import { getPageNode } from "@core/workspace";
 import { Sidebar } from "../Sidebar/Sidebar";
+import { CanvasPage } from "../pages/CanvasPage";
 import { PagePlaceholder } from "../pages/PagePlaceholder";
 import { useWorkspace, type WorkspaceController } from "./useWorkspace";
 import "./Workspace.css";
@@ -21,6 +22,11 @@ function PageView({ controller }: { controller: WorkspaceController }) {
     );
   }
 
+  if (page.kind === "canvas") {
+    return <CanvasPage key={page.id} pageId={page.id} controller={controller} />;
+  }
+
+  // Doc pages still use the placeholder until F3 (rich-text editor).
   return <PagePlaceholder key={page.id} page={page} />;
 }
 

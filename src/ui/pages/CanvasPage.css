@@ -1,0 +1,5 @@
+/* Fills .ws-main (which is position: relative) so tldraw gets a sized container. */
+.canvas-page {
+  position: absolute;
+  inset: 0;
+}
