@@ -14,6 +14,15 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Module boundaries — kept as folders now, easy to extract into
+       @deckgun/core, @deckgun/ui, @deckgun/platform-* packages later. */
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["src/core/*"],
+      "@ui/*": ["src/ui/*"],
+      "@platform/*": ["src/platform/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
