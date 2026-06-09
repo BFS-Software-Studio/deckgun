@@ -8,7 +8,7 @@ export type TextNodeType = Node<TextNodeData, "text">;
 function TextNodeComponent({ id, data, selected }: NodeProps<TextNodeType>) {
   const { updateNodeData } = useCanvasTools();
   const [editing, setEditing] = useState(false);
-  const color = data.color ?? "#1d1d1f";
+  const color = data.color ?? "var(--text)";
 
   return (
     <div className="cv-text" style={{ color }}>

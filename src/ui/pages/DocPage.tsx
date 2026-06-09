@@ -11,6 +11,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Image from "@tiptap/extension-image";
 import type { Editor, JSONContent } from "@tiptap/core";
 import { getPageNode } from "@core/workspace";
+import { prepareImage } from "@ui/canvas/image";
 import type { WorkspaceController } from "../Workspace/useWorkspace";
 import "./DocPage.css";
 
@@ -212,7 +213,7 @@ export function DocPage({
       Placeholder.configure({
         placeholder: "Write something, or paste your notes…",
       }),
-      Image,
+      Image.configure({ allowBase64: true }),
     ],
     content: initialDoc ?? "",
     immediatelyRender: false,
@@ -227,12 +228,11 @@ export function DocPage({
         if (images.length === 0) return false;
         images.forEach((file) => {
           const reader = new FileReader();
-          reader.onload = () =>
-            editorRef.current
-              ?.chain()
-              .focus()
-              .setImage({ src: reader.result as string })
-              .run();
+          reader.onload = () => {
+            prepareImage(reader.result as string).then(({ src }) =>
+              editorRef.current?.chain().focus().setImage({ src }).run(),
+            );
+          };
           reader.readAsDataURL(file);
         });
         return true;
@@ -281,8 +281,11 @@ export function DocPage({
     e.target.value = "";
     if (!file || !editor) return;
     const reader = new FileReader();
-    reader.onload = () =>
-      editor.chain().focus().setImage({ src: reader.result as string }).run();
+    reader.onload = () => {
+      prepareImage(reader.result as string).then(({ src }) =>
+        editor.chain().focus().setImage({ src }).run(),
+      );
+    };
     reader.readAsDataURL(file);
   };
 

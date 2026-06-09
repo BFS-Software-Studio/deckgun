@@ -35,6 +35,7 @@ import { DrawNode } from "@ui/canvas/DrawNode";
 import { ImageNode } from "@ui/canvas/ImageNode";
 import { CanvasToolbar, type CanvasTool } from "@ui/canvas/CanvasToolbar";
 import { strokePath } from "@ui/canvas/freehand";
+import { prepareImage } from "@ui/canvas/image";
 import { useTheme } from "@ui/theme/ThemeProvider";
 import type { WorkspaceController } from "../Workspace/useWorkspace";
 import "@ui/canvas/canvas.css";
@@ -87,6 +88,15 @@ function CanvasInner({
   // New annotations default to a colour that's visible against the current
   // theme (light ink on light, near-white ink on dark).
   const [color, setColor] = useState(theme === "dark" ? "#ececed" : "#1d1d1f");
+  const colorUserSetRef = useRef(false);
+
+  // Keep the default ink readable when the theme is switched mid-session,
+  // unless the user has explicitly picked a colour.
+  useEffect(() => {
+    if (!colorUserSetRef.current) {
+      setColor(theme === "dark" ? "#ececed" : "#1d1d1f");
+    }
+  }, [theme]);
 
   const [initial] = useState<CanvasFlow>(() => {
     const content = controller.workspace?.pages[pageId];
@@ -107,7 +117,14 @@ function CanvasInner({
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
 
   const commit = useCallback(() => {
-    updatePageContent(pageId, { kind: "canvas", snapshot: rf.toObject() });
+    // Don't persist transient selection state (it would restore nodes as
+    // pre-selected and churn the autosave on every click).
+    const flow = rf.toObject();
+    const snapshot = {
+      ...flow,
+      nodes: flow.nodes.map((n) => ({ ...n, selected: false })),
+    };
+    updatePageContent(pageId, { kind: "canvas", snapshot });
   }, [rf, updatePageContent, pageId]);
 
   const scheduleSave = useCallback(() => {
@@ -134,7 +151,12 @@ function CanvasInner({
   const handleNodesChange = useCallback(
     (changes: Parameters<typeof onNodesChange>[0]) => {
       onNodesChange(changes);
-      scheduleSave();
+      // Selection and initial-measurement changes aren't persisted edits, so
+      // they shouldn't trigger a save (avoids churn + persisting selection).
+      const meaningful = changes.some(
+        (c) => c.type !== "select" && c.type !== "dimensions",
+      );
+      if (meaningful) scheduleSave();
     },
     [onNodesChange, scheduleSave],
   );
@@ -200,14 +222,25 @@ function CanvasInner({
     [addNodeAtCenter, color],
   );
 
-  // Set the active colour and recolour any selected nodes.
+  // Set the active colour and recolour any selected colourable nodes.
   const onColor = useCallback(
     (c: string) => {
+      colorUserSetRef.current = true;
       setColor(c);
+      let changed = false;
       setNodes((nds) =>
-        nds.map((n) => (n.selected ? { ...n, data: { ...n.data, color: c } } : n)),
+        nds.map((n) => {
+          if (
+            n.selected &&
+            (n.type === "text" || n.type === "shape" || n.type === "draw")
+          ) {
+            changed = true;
+            return { ...n, data: { ...n.data, color: c } };
+          }
+          return n;
+        }),
       );
-      scheduleSave();
+      if (changed) scheduleSave();
     },
     [setNodes, scheduleSave],
   );
@@ -217,25 +250,42 @@ function CanvasInner({
 
   const addImage = useCallback(
     (dataUrl: string, x: number, y: number) => {
-      const img = new Image();
-      img.onload = () => {
+      const id = newId();
+      const w0 = 240;
+      const h0 = 180;
+      // Create the node synchronously so a quick page-switch can never drop it.
+      setNodes((nds) =>
+        nds.concat({
+          id,
+          type: "image",
+          position: { x: x - w0 / 2, y: y - h0 / 2 },
+          width: w0,
+          height: h0,
+          data: { src: dataUrl },
+        }),
+      );
+      scheduleSave();
+      // Then downscale (keeps workspace.json small) and size to the aspect.
+      prepareImage(dataUrl).then(({ src, width, height }) => {
         const maxW = 420;
-        const scale = img.width > maxW ? maxW / img.width : 1;
-        const w = Math.max(40, Math.round(img.width * scale));
-        const h = Math.max(40, Math.round(img.height * scale));
+        const scale = width > maxW ? maxW / width : 1;
+        const w = Math.max(40, Math.round(width * scale));
+        const h = Math.max(40, Math.round(height * scale));
         setNodes((nds) =>
-          nds.concat({
-            id: newId(),
-            type: "image",
-            position: { x: x - w / 2, y: y - h / 2 },
-            width: w,
-            height: h,
-            data: { src: dataUrl },
-          }),
+          nds.map((n) =>
+            n.id === id
+              ? {
+                  ...n,
+                  width: w,
+                  height: h,
+                  position: { x: x - w / 2, y: y - h / 2 },
+                  data: { ...n.data, src },
+                }
+              : n,
+          ),
         );
         scheduleSave();
-      };
-      img.src = dataUrl;
+      });
     },
     [setNodes, scheduleSave],
   );
