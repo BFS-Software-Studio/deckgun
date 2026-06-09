@@ -46,7 +46,7 @@ function MarkdownNodeComponent({ data, selected }: NodeProps<MarkdownNodeType>) 
         />
       ))}
 
-      <div className="md-node-body nowheel">
+      <div className="md-node-body">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }]]}

@@ -1,0 +1,223 @@
+.cv-flow-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Floating toolbar (frosted pill, top-centre) ─────────────────────── */
+.cv-toolbar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 0.5px solid rgba(0, 0, 0, 0.07);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+}
+
+.cv-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cv-tool {
+  width: 34px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #3a3a3c;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease,
+    transform 0.08s ease;
+}
+
+.cv-tool:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1d1d1f;
+}
+
+.cv-tool:active {
+  transform: scale(0.92);
+}
+
+.cv-tool.active {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+}
+
+.cv-tool-text {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cv-tool-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 3px;
+  background: rgba(0, 0, 0, 0.09);
+}
+
+.cv-swatches {
+  gap: 4px;
+}
+
+.cv-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+
+.cv-swatch:hover {
+  transform: scale(1.15);
+}
+
+.cv-swatch.active {
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px #2563eb;
+}
+
+/* ── Pen draw overlay ────────────────────────────────────────────────── */
+.cv-draw-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.cv-draw-overlay-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* ── Text node ───────────────────────────────────────────────────────── */
+.cv-text {
+  width: 100%;
+  height: 100%;
+}
+
+.cv-text-display,
+.cv-text-input {
+  width: 100%;
+  height: 100%;
+  padding: 6px 8px;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: inherit;
+}
+
+.cv-text-display.empty {
+  color: #c2c2c7;
+}
+
+.cv-text-input {
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+}
+
+/* ── Shape node ──────────────────────────────────────────────────────── */
+.cv-shape {
+  width: 100%;
+  height: 100%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cv-shape-rectangle {
+  border-radius: 8px;
+}
+
+.cv-shape-ellipse {
+  border-radius: 50%;
+}
+
+.cv-shape-label,
+.cv-shape-input {
+  width: 100%;
+  text-align: center;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cv-shape-input {
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+}
+
+/* ── Draw node ───────────────────────────────────────────────────────── */
+.cv-draw,
+.cv-draw-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.cv-draw-svg {
+  display: block;
+  overflow: visible;
+}
+
+/* ── Connection handles (shape) ──────────────────────────────────────── */
+.cv-handle {
+  width: 9px;
+  height: 9px;
+  background: #2563eb;
+  border: 2px solid #ffffff;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.react-flow__node-shape:hover .cv-handle,
+.react-flow__node-shape.selected .cv-handle {
+  opacity: 1;
+}
+
+/* ── Resize controls (shared) ────────────────────────────────────────── */
+.cv-resize-line {
+  border-color: #2563eb;
+}
+
+.cv-resize-handle {
+  background: #ffffff;
+  border: 1.5px solid #2563eb;
+  border-radius: 2px;
+}
