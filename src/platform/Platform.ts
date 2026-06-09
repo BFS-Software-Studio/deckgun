@@ -3,13 +3,12 @@
 // implements the same interface against a server. Nothing outside platform/
 // should import @tauri-apps/* directly.
 
-export interface DroppedFile {
-  name: string;
-  text: string;
-}
+export type DroppedItem =
+  | { kind: "markdown"; name: string; text: string }
+  | { kind: "image"; name: string; dataUrl: string };
 
 export interface FileDrop {
-  files: DroppedFile[];
+  items: DroppedItem[];
   // Drop point in CSS pixels, relative to the viewport top-left.
   position: { x: number; y: number };
 }

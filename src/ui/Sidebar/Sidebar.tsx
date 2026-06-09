@@ -4,6 +4,7 @@ import type { WorkspaceController } from "../Workspace/useWorkspace";
 import { NewPageDialog } from "../components/NewPageDialog";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { TreeNode } from "./TreeNode";
+import { SettingsMenu } from "./SettingsMenu";
 import "./Sidebar.css";
 
 export function Sidebar({ controller }: { controller: WorkspaceController }) {
@@ -11,6 +12,7 @@ export function Sidebar({ controller }: { controller: WorkspaceController }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newPageOpen, setNewPageOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<{
     id: string;
     name: string;
@@ -112,6 +114,19 @@ export function Sidebar({ controller }: { controller: WorkspaceController }) {
               onDelete={handleDelete}
             />
           ))
+        )}
+      </div>
+
+      <div className="sidebar-footer">
+        <button
+          className="sidebar-footer-btn"
+          onClick={() => setSettingsOpen((open) => !open)}
+        >
+          <span className="sidebar-footer-icon">⚙</span>
+          Settings
+        </button>
+        {settingsOpen && (
+          <SettingsMenu onClose={() => setSettingsOpen(false)} />
         )}
       </div>
 

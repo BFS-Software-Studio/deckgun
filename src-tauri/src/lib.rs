@@ -45,13 +45,35 @@ fn read_text_file(path: String) -> Result<String, String> {
     std::fs::read_to_string(&path).map_err(|e| e.to_string())
 }
 
+// Read an image file dropped onto the window and return it base64-encoded so it
+// can be embedded (as a data URL) into a card/canvas node, keeping the workspace
+// self-contained.
+const MAX_IMAGE_BYTES: u64 = 12 * 1024 * 1024; // 12 MB
+
+#[tauri::command]
+fn read_file_base64(path: String) -> Result<String, String> {
+    use base64::Engine;
+    let lower = path.to_lowercase();
+    let allowed = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"];
+    if !allowed.iter().any(|ext| lower.ends_with(ext)) {
+        return Err("unsupported image type".into());
+    }
+    let metadata = std::fs::metadata(&path).map_err(|e| e.to_string())?;
+    if metadata.len() > MAX_IMAGE_BYTES {
+        return Err("image is too large".into());
+    }
+    let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+    Ok(base64::engine::general_purpose::STANDARD.encode(bytes))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             save_workspace,
             load_workspace,
-            read_text_file
+            read_text_file,
+            read_file_base64
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

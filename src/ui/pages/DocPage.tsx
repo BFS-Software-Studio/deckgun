@@ -1,7 +1,14 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import Image from "@tiptap/extension-image";
 import type { Editor, JSONContent } from "@tiptap/core";
 import { getPageNode } from "@core/workspace";
 import type { WorkspaceController } from "../Workspace/useWorkspace";
@@ -78,6 +85,13 @@ const icons = {
       <polyline points="8 6 2 12 8 18" />
     </>,
   ),
+  image: svg(
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </>,
+  ),
 };
 
 function ToolButton({
@@ -104,7 +118,7 @@ function ToolButton({
   );
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({ editor, onImage }: { editor: Editor; onImage: () => void }) {
   return (
     <div className="doc-toolbar">
       <div className="tool-group">
@@ -151,6 +165,14 @@ function Toolbar({ editor }: { editor: Editor }) {
           {icons.code}
         </ToolButton>
       </div>
+
+      <span className="tool-sep" />
+
+      <div className="tool-group">
+        <ToolButton title="Insert image" onClick={onImage}>
+          {icons.image}
+        </ToolButton>
+      </div>
     </div>
   );
 }
@@ -181,6 +203,8 @@ export function DocPage({
   const [saving, setSaving] = useState(false);
   const saveTimer = useRef<number | undefined>(undefined);
   const latestDocRef = useRef<JSONContent | null>(initialDoc);
+  const editorRef = useRef<Editor | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -188,10 +212,32 @@ export function DocPage({
       Placeholder.configure({
         placeholder: "Write something, or paste your notes…",
       }),
+      Image,
     ],
     content: initialDoc ?? "",
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
+    editorProps: {
+      // Paste images straight from the clipboard (embedded as base64).
+      handlePaste: (_view, event) => {
+        const files = event.clipboardData?.files;
+        const images = files
+          ? Array.from(files).filter((f) => f.type.startsWith("image/"))
+          : [];
+        if (images.length === 0) return false;
+        images.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = () =>
+            editorRef.current
+              ?.chain()
+              .focus()
+              .setImage({ src: reader.result as string })
+              .run();
+          reader.readAsDataURL(file);
+        });
+        return true;
+      },
+    },
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
       latestDocRef.current = json;
@@ -224,13 +270,37 @@ export function DocPage({
     };
   }, [updatePageContent, registerActiveFlush, pageId]);
 
+  useEffect(() => {
+    editorRef.current = editor;
+  }, [editor]);
+
+  const onImage = () => fileInputRef.current?.click();
+
+  const handleImageFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !editor) return;
+    const reader = new FileReader();
+    reader.onload = () =>
+      editor.chain().focus().setImage({ src: reader.result as string }).run();
+    reader.readAsDataURL(file);
+  };
+
   const words = editor
     ? editor.getText().trim().split(/\s+/).filter(Boolean).length
     : 0;
 
   return (
     <div className="doc-page">
-      {editor && <Toolbar editor={editor} />}
+      {editor && <Toolbar editor={editor} onImage={onImage} />}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={handleImageFile}
+      />
 
       <div className="doc-scroll">
         <div className="doc-column">

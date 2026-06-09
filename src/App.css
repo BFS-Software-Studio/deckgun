@@ -1,3 +1,47 @@
+:root {
+  --app-bg: #ffffff;
+  --panel-bg: #f7f7f8;
+  --surface: #ffffff;
+  --hover: rgba(0, 0, 0, 0.05);
+  --selected: #dbe6fb;
+  --text: #1d1d1f;
+  --text-muted: #6e6e73;
+  --text-faint: #98989d;
+  --border: #e3e3e5;
+  --border-subtle: #ececef;
+  --accent: #2563eb;
+  --accent-text: #1d4ed8;
+  --accent-weak: rgba(37, 99, 235, 0.12);
+  --frost-bg: rgba(255, 255, 255, 0.74);
+  --frost-border: rgba(0, 0, 0, 0.07);
+  --card-bg: #ffffff;
+  --card-border: #e6e6e6;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="dark"] {
+  --app-bg: #161618;
+  --panel-bg: #1d1d20;
+  --surface: #232327;
+  --hover: rgba(255, 255, 255, 0.07);
+  --selected: #2c3f63;
+  --text: #f2f2f4;
+  --text-muted: #a2a2aa;
+  --text-faint: #76767e;
+  --border: #34343a;
+  --border-subtle: #2c2c31;
+  --accent: #4f8cff;
+  --accent-text: #6ea0ff;
+  --accent-weak: rgba(79, 140, 255, 0.2);
+  --frost-bg: rgba(34, 34, 38, 0.8);
+  --frost-border: rgba(255, 255, 255, 0.09);
+  --card-bg: #26262b;
+  --card-border: #37373d;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -13,6 +57,8 @@ body {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--app-bg);
+  color: var(--text);
 }
 
 .error-boundary {
@@ -21,7 +67,7 @@ body {
   justify-content: center;
   height: 100%;
   padding: 24px;
-  background: #ffffff;
+  background: var(--app-bg);
 }
 
 .error-boundary-box {
@@ -33,7 +79,7 @@ body {
 .error-boundary-title {
   font-size: 17px;
   font-weight: 600;
-  color: #1d1d1f;
+  color: var(--text);
   margin-bottom: 10px;
 }
 
@@ -55,12 +101,8 @@ body {
   font-size: 13px;
   font-weight: 500;
   color: #ffffff;
-  background: #2563eb;
+  background: var(--accent);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-}
-
-.error-boundary-btn:hover {
-  background: #1d4ed8;
 }

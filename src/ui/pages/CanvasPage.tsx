@@ -4,6 +4,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ChangeEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
@@ -31,8 +32,10 @@ import { CanvasContext, type CanvasTools } from "@ui/canvas/CanvasContext";
 import { TextNode } from "@ui/canvas/TextNode";
 import { ShapeNode, type ShapeKind } from "@ui/canvas/ShapeNode";
 import { DrawNode } from "@ui/canvas/DrawNode";
+import { ImageNode } from "@ui/canvas/ImageNode";
 import { CanvasToolbar, type CanvasTool } from "@ui/canvas/CanvasToolbar";
 import { strokePath } from "@ui/canvas/freehand";
+import { useTheme } from "@ui/theme/ThemeProvider";
 import type { WorkspaceController } from "../Workspace/useWorkspace";
 import "@ui/canvas/canvas.css";
 import "./CanvasPage.css";
@@ -42,6 +45,7 @@ const nodeTypes: NodeTypes = {
   text: TextNode,
   shape: ShapeNode,
   draw: DrawNode,
+  image: ImageNode,
 };
 
 const STROKE_PX = 3.5;
@@ -73,13 +77,16 @@ function CanvasInner({
   const platform = usePlatform();
   const { updatePageContent, registerActiveFlush } = controller;
   const rf = useReactFlow();
+  const { theme } = useTheme();
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const seededRef = useRef(false);
   const saveTimer = useRef<number | undefined>(undefined);
 
   const [tool, setTool] = useState<CanvasTool>("select");
-  const [color, setColor] = useState("#1d1d1f");
+  // New annotations default to a colour that's visible against the current
+  // theme (light ink on light, near-white ink on dark).
+  const [color, setColor] = useState(theme === "dark" ? "#ececed" : "#1d1d1f");
 
   const [initial] = useState<CanvasFlow>(() => {
     const content = controller.workspace?.pages[pageId];
@@ -205,6 +212,58 @@ function CanvasInner({
     [setNodes, scheduleSave],
   );
 
+  // ── Images (embedded as base64 so the workspace stays self-contained) ──
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const addImage = useCallback(
+    (dataUrl: string, x: number, y: number) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 420;
+        const scale = img.width > maxW ? maxW / img.width : 1;
+        const w = Math.max(40, Math.round(img.width * scale));
+        const h = Math.max(40, Math.round(img.height * scale));
+        setNodes((nds) =>
+          nds.concat({
+            id: newId(),
+            type: "image",
+            position: { x: x - w / 2, y: y - h / 2 },
+            width: w,
+            height: h,
+            data: { src: dataUrl },
+          }),
+        );
+        scheduleSave();
+      };
+      img.src = dataUrl;
+    },
+    [setNodes, scheduleSave],
+  );
+
+  const onAddImage = useCallback(() => fileInputRef.current?.click(), []);
+
+  const handleImageFile = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = "";
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const rect = wrapRef.current?.getBoundingClientRect();
+        const c = rect
+          ? rf.screenToFlowPosition({
+              x: rect.left + rect.width / 2,
+              y: rect.top + rect.height / 2,
+            })
+          : { x: 0, y: 0 };
+        addImage(reader.result as string, c.x, c.y);
+        setTool("select");
+      };
+      reader.readAsDataURL(file);
+    },
+    [rf, addImage],
+  );
+
   // ── Pen tool ──────────────────────────────────────────────────────────
   const strokeRef = useRef<number[][] | null>(null);
   const [preview, setPreview] = useState("");
@@ -260,17 +319,22 @@ function CanvasInner({
     scheduleSave();
   }, [rf, setNodes, scheduleSave, color]);
 
-  // ── Drop .md files → markdown cards ───────────────────────────────────
+  // ── Drop .md files → cards, images → image nodes ──────────────────────
   useEffect(() => {
-    return platform.files.onFileDrop(({ files, position }) => {
+    return platform.files.onFileDrop(({ items, position }) => {
       const point = rf.screenToFlowPosition(position);
-      const newNodes = files.map((file, i) =>
-        makeCardNode(file.text, point.x - 180 + i * 28, point.y - 140 + i * 28),
-      );
-      setNodes((nds) => nds.concat(newNodes));
-      scheduleSave();
+      items.forEach((item, i) => {
+        const x = point.x + i * 28;
+        const y = point.y + i * 28;
+        if (item.kind === "markdown") {
+          setNodes((nds) => nds.concat(makeCardNode(item.text, x - 180, y - 140)));
+          scheduleSave();
+        } else {
+          addImage(item.dataUrl, x, y);
+        }
+      });
     });
-  }, [platform, rf, setNodes, scheduleSave]);
+  }, [platform, rf, setNodes, scheduleSave, addImage]);
 
   // ── One-time welcome card seed ────────────────────────────────────────
   useEffect(() => {
@@ -312,6 +376,7 @@ function CanvasInner({
           onMoveEnd={scheduleSave}
           nodeTypes={nodeTypes}
           connectionMode={ConnectionMode.Loose}
+          colorMode={theme}
           defaultViewport={initial.viewport}
           fitView={!initial.viewport}
           minZoom={0.1}
@@ -321,7 +386,11 @@ function CanvasInner({
           elementsSelectable={!penMode}
           proOptions={{ hideAttribution: true }}
         >
-          <Background gap={20} size={1} color="#e9e9ec" />
+          <Background
+            gap={20}
+            size={1}
+            color={theme === "dark" ? "#33333a" : "#e9e9ec"}
+          />
           <Controls showInteractive={false} />
         </ReactFlow>
 
@@ -347,8 +416,17 @@ function CanvasInner({
         onSetTool={setTool}
         onAddText={onAddText}
         onAddShape={onAddShape}
+        onAddImage={onAddImage}
         color={color}
         onColor={onColor}
+      />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={handleImageFile}
       />
     </CanvasContext.Provider>
   );

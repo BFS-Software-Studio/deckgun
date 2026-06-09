@@ -10,7 +10,7 @@
   min-width: 0;
   height: 100%;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--app-bg);
 }
 
 .ws-loading {
@@ -18,7 +18,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: var(--text-faint);
   font-size: 14px;
 }
 
@@ -29,13 +29,13 @@
   justify-content: center;
   gap: 6px;
   height: 100%;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .ws-empty-title {
   font-size: 15px;
   font-weight: 600;
-  color: #555;
+  color: var(--text);
 }
 
 .ws-empty-hint {

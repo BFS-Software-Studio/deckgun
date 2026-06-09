@@ -3,7 +3,15 @@ import type { ShapeKind } from "./ShapeNode";
 
 export type CanvasTool = "select" | "pen";
 
-const COLORS = ["#1d1d1f", "#2563eb", "#dc2626", "#16a34a", "#d97706", "#7c3aed"];
+const COLORS = [
+  "#1d1d1f",
+  "#ececed",
+  "#2563eb",
+  "#dc2626",
+  "#16a34a",
+  "#d97706",
+  "#7c3aed",
+];
 
 const svg = (children: ReactNode) => (
   <svg
@@ -36,6 +44,13 @@ const icons = {
       <circle cx="11" cy="11" r="2" />
     </>,
   ),
+  image: svg(
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </>,
+  ),
 };
 
 function Btn({
@@ -66,6 +81,7 @@ export function CanvasToolbar({
   onSetTool,
   onAddText,
   onAddShape,
+  onAddImage,
   color,
   onColor,
 }: {
@@ -73,6 +89,7 @@ export function CanvasToolbar({
   onSetTool: (tool: CanvasTool) => void;
   onAddText: () => void;
   onAddShape: (shape: ShapeKind) => void;
+  onAddImage: () => void;
   color: string;
   onColor: (color: string) => void;
 }) {
@@ -90,6 +107,9 @@ export function CanvasToolbar({
         </Btn>
         <Btn title="Ellipse" onClick={() => onAddShape("ellipse")}>
           {icons.ellipse}
+        </Btn>
+        <Btn title="Image" onClick={onAddImage}>
+          {icons.image}
         </Btn>
         <Btn title="Pen" active={tool === "pen"} onClick={() => onSetTool(tool === "pen" ? "select" : "pen")}>
           {icons.pen}
