@@ -24,8 +24,11 @@ export type WorkspaceNode = FolderNode | PageNode;
 // tree stays small and content can be loaded/diffed independently.
 export interface CanvasPageContent {
   kind: "canvas";
-  // tldraw snapshot ({ document, session }). Opaque to core.
+  // Canvas state ({ nodes, edges, viewport } from React Flow). Opaque to core.
   snapshot: unknown | null;
+  // One-time seed: if set and there is no snapshot yet, the canvas page drops a
+  // welcome markdown card with this content on first open, then clears it.
+  seedMarkdown?: string;
 }
 
 export interface DocPageContent {

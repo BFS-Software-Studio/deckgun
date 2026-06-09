@@ -14,7 +14,7 @@ export function NewPageDialog({
         <button className="page-kind-card" onClick={() => onChoose("canvas")}>
           <span className="page-kind-icon">🎨</span>
           <span className="page-kind-label">Canvas</span>
-          <span className="page-kind-desc">tldraw diagram board</span>
+          <span className="page-kind-desc">Infinite canvas of cards</span>
         </button>
         <button className="page-kind-card" onClick={() => onChoose("doc")}>
           <span className="page-kind-icon">📝</span>

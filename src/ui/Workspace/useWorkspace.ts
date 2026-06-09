@@ -6,6 +6,7 @@ import {
   deleteNode,
   emptyWorkspace,
   renameNode,
+  seedWorkspace,
   setActivePage,
   setPageContent,
   toggleExpanded,
@@ -22,6 +23,10 @@ export interface WorkspaceActions {
   select(id: string | null): void;
   toggleFolder(id: string): void;
   updatePageContent(pageId: string, content: PageContent): void;
+  // The active page editor registers a function that commits its latest
+  // (possibly still-debounced) content into the workspace. Used to flush on
+  // app close/hide so the last edits aren't lost. Returns an unregister fn.
+  registerActiveFlush(flush: () => void): () => void;
 }
 
 export interface WorkspaceController extends WorkspaceActions {
@@ -36,11 +41,51 @@ export function useWorkspace(): WorkspaceController {
   // next state synchronously (and return new ids) without stale closures.
   const wsRef = useRef<Workspace | null>(null);
   const lastSavedRef = useRef<string | null>(null);
+  const activeFlushRef = useRef<(() => void) | null>(null);
 
   const apply = useCallback((next: Workspace) => {
     wsRef.current = next;
     setWorkspace(next);
   }, []);
+
+  const registerActiveFlush = useCallback((flush: () => void) => {
+    activeFlushRef.current = flush;
+    return () => {
+      if (activeFlushRef.current === flush) activeFlushRef.current = null;
+    };
+  }, []);
+
+  // Force the latest in-memory workspace to disk immediately (best effort),
+  // first pulling any still-debounced edit out of the active page editor.
+  const flushNow = useCallback(() => {
+    activeFlushRef.current?.();
+    const ws = wsRef.current;
+    if (!ws) return;
+    const json = JSON.stringify(ws);
+    if (json === lastSavedRef.current) return;
+    platform.storage
+      .saveWorkspace(json)
+      .then(() => {
+        lastSavedRef.current = json;
+      })
+      .catch((err) => console.error("Flush save failed:", err));
+  }, [platform]);
+
+  // Persist on window close / hide so edits inside the debounce window survive.
+  useEffect(() => {
+    const onHide = () => flushNow();
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") flushNow();
+    };
+    window.addEventListener("beforeunload", onHide);
+    window.addEventListener("pagehide", onHide);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("beforeunload", onHide);
+      window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [flushNow]);
 
   // Load once on mount.
   useEffect(() => {
@@ -50,16 +95,20 @@ export function useWorkspace(): WorkspaceController {
       .then((json) => {
         if (cancelled) return;
         let ws: Workspace;
+        let savedJson: string | null = null;
         if (json) {
           try {
             ws = JSON.parse(json) as Workspace;
+            savedJson = json;
           } catch {
             ws = emptyWorkspace();
           }
         } else {
-          ws = emptyWorkspace();
+          // First launch: seed a friendly "Templates" folder with examples.
+          ws = seedWorkspace();
         }
-        lastSavedRef.current = JSON.stringify(ws);
+        // null for a fresh seed/recovery → the autosave effect persists it.
+        lastSavedRef.current = savedJson;
         apply(ws);
       })
       .catch((err) => {
@@ -165,5 +214,6 @@ export function useWorkspace(): WorkspaceController {
     select,
     toggleFolder,
     updatePageContent,
+    registerActiveFlush,
   };
 }

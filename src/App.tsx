@@ -1,6 +1,7 @@
 import { PlatformProvider } from "@platform/PlatformProvider";
 import { createTauriPlatform } from "@platform/tauri/tauriPlatform";
 import { Workspace } from "@ui/Workspace/Workspace";
+import { ErrorBoundary } from "@ui/ErrorBoundary";
 import "./App.css";
 
 // Composition root: pick the platform adapter (Tauri on desktop; a web adapter
@@ -10,9 +11,11 @@ const platform = createTauriPlatform();
 
 function App() {
   return (
-    <PlatformProvider platform={platform}>
-      <Workspace />
-    </PlatformProvider>
+    <ErrorBoundary>
+      <PlatformProvider platform={platform}>
+        <Workspace />
+      </PlatformProvider>
+    </ErrorBoundary>
   );
 }
 

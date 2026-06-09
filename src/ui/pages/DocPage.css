@@ -1,0 +1,307 @@
+.doc-page {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* A calm, centred editorial column with generous breathing room. */
+.doc-column {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 100px 28px 200px;
+  animation: doc-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes doc-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Title ───────────────────────────────────────────────────────────── */
+.doc-title {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0 0 0.35em;
+  background: transparent;
+  font-family: inherit;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.022em;
+  color: #1d1d1f;
+}
+
+.doc-title::placeholder {
+  color: #d2d2d7;
+}
+
+.doc-title {
+  caret-color: #2563eb;
+}
+
+/* ── Editor body ─────────────────────────────────────────────────────── */
+.doc-editor .ProseMirror {
+  outline: none;
+  min-height: 50vh;
+  color: #1d1d1f;
+  font-size: 17px;
+  line-height: 1.72;
+  letter-spacing: -0.003em;
+  caret-color: #2563eb;
+}
+
+.doc-editor .ProseMirror > :first-child {
+  margin-top: 0;
+}
+
+.doc-editor .ProseMirror h1,
+.doc-editor .ProseMirror h2,
+.doc-editor .ProseMirror h3 {
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: #1d1d1f;
+}
+
+.doc-editor .ProseMirror h1 {
+  font-size: 1.6em;
+  font-weight: 700;
+  margin: 1.4em 0 0.4em;
+}
+
+.doc-editor .ProseMirror h2 {
+  font-size: 1.3em;
+  font-weight: 650;
+  margin: 1.2em 0 0.35em;
+}
+
+.doc-editor .ProseMirror h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 1em 0 0.3em;
+}
+
+.doc-editor .ProseMirror p {
+  margin: 0.7em 0;
+}
+
+.doc-editor .ProseMirror ul,
+.doc-editor .ProseMirror ol {
+  padding-left: 1.4em;
+  margin: 0.6em 0;
+}
+
+.doc-editor .ProseMirror li {
+  margin: 0.2em 0;
+}
+
+.doc-editor .ProseMirror li p {
+  margin: 0.15em 0;
+}
+
+.doc-editor .ProseMirror blockquote {
+  margin: 0.9em 0;
+  padding: 0.1em 0 0.1em 1.1em;
+  border-left: 3px solid #e3e3e6;
+  color: #6e6e73;
+}
+
+.doc-editor .ProseMirror a {
+  color: #2563eb;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(37, 99, 235, 0.35);
+}
+
+.doc-editor .ProseMirror code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: #f4f4f6;
+  padding: 0.12em 0.4em;
+  border-radius: 5px;
+  color: #d6336c;
+}
+
+.doc-editor .ProseMirror pre {
+  margin: 0.9em 0;
+  padding: 16px 18px;
+  background: #1d1d1f;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.doc-editor .ProseMirror pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.86em;
+  color: #f5f5f7;
+}
+
+.doc-editor .ProseMirror hr {
+  border: none;
+  border-top: 1px solid #ececef;
+  margin: 1.6em 0;
+}
+
+/* Native-feel text selection */
+.doc-editor .ProseMirror ::selection {
+  background: rgba(37, 99, 235, 0.16);
+}
+
+/* Empty-state placeholder (TipTap Placeholder extension) */
+.doc-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: #c7c7cc;
+  pointer-events: none;
+}
+
+/* ── Status footer (word count + save state) ─────────────────────────── */
+.doc-status {
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #98989d;
+  user-select: none;
+  pointer-events: none;
+}
+
+.doc-status-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #d2d2d7;
+}
+
+.doc-status-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #30b14e;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.doc-status-save::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.doc-status-save.saving {
+  color: #b0b0b5;
+}
+
+.doc-status-save.saving::before {
+  animation: doc-pulse 1s ease-in-out infinite;
+}
+
+@keyframes doc-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ── Floating formatting toolbar (frosted, always visible) ───────────── */
+.doc-toolbar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 0.5px solid rgba(0, 0, 0, 0.07);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tool-btn {
+  width: 34px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #3a3a3c;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease,
+    transform 0.08s ease;
+}
+
+.tool-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1d1d1f;
+}
+
+.tool-btn:active {
+  transform: scale(0.92);
+}
+
+.tool-btn.active {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+}
+
+.tool-text {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.tool-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 3px;
+  background: rgba(0, 0, 0, 0.09);
+}

@@ -14,3 +14,53 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  background: #ffffff;
+}
+
+.error-boundary-box {
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+}
+
+.error-boundary-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 10px;
+}
+
+.error-boundary-message {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+  color: #b00020;
+  background: #fdecef;
+  border-radius: 8px;
+}
+
+.error-boundary-btn {
+  padding: 8px 18px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.error-boundary-btn:hover {
+  background: #1d4ed8;
+}
