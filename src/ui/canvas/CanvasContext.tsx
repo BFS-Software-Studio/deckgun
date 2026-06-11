@@ -3,6 +3,9 @@ import { createContext, useContext } from "react";
 export interface CanvasTools {
   // Patch a node's data (used by editable nodes) and persist.
   updateNodeData: (id: string, patch: Record<string, unknown>) => void;
+  // Toggle a node's locked state. Locked nodes can't be moved/selected and
+  // clicks pass through them so the canvas pans (Figma-style).
+  toggleNodeLock: (id: string) => void;
 }
 
 export const CanvasContext = createContext<CanvasTools | null>(null);

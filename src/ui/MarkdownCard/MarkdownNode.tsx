@@ -10,10 +10,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import { LockBadge } from "@ui/canvas/LockBadge";
 import { MermaidDiagram } from "./MermaidDiagram";
 import "./MarkdownNode.css";
 
-export type MarkdownNodeData = { markdown: string };
+export type MarkdownNodeData = { markdown: string; locked?: boolean };
 export type MarkdownNodeType = Node<MarkdownNodeData, "markdown">;
 
 // One handle per side; ConnectionMode.Loose lets any handle link to any other,
@@ -25,9 +26,10 @@ const SIDES: Position[] = [
   Position.Left,
 ];
 
-function MarkdownNodeComponent({ data, selected }: NodeProps<MarkdownNodeType>) {
+function MarkdownNodeComponent({ id, data, selected }: NodeProps<MarkdownNodeType>) {
   return (
     <div className="md-node">
+      <LockBadge id={id} locked={!!data.locked} />
       <NodeResizer
         minWidth={220}
         minHeight={120}

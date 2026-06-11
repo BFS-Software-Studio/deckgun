@@ -1,8 +1,9 @@
 import { memo, useState } from "react";
 import { NodeResizer, type Node, type NodeProps } from "@xyflow/react";
 import { useCanvasTools } from "./CanvasContext";
+import { LockBadge } from "./LockBadge";
 
-export type TextNodeData = { text: string; color?: string };
+export type TextNodeData = { text: string; color?: string; locked?: boolean };
 export type TextNodeType = Node<TextNodeData, "text">;
 
 function TextNodeComponent({ id, data, selected }: NodeProps<TextNodeType>) {
@@ -12,6 +13,7 @@ function TextNodeComponent({ id, data, selected }: NodeProps<TextNodeType>) {
 
   return (
     <div className="cv-text" style={{ color }}>
+      <LockBadge id={id} locked={!!data.locked} />
       <NodeResizer
         minWidth={80}
         minHeight={32}

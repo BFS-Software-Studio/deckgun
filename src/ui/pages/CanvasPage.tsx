@@ -146,7 +146,35 @@ function CanvasInner({
     },
     [setNodes, scheduleSave],
   );
-  const tools = useMemo<CanvasTools>(() => ({ updateNodeData }), [updateNodeData]);
+  // Lock/unlock a node. Locking clears its selection and flags it
+  // non-interactive; the `cv-node-locked` class (see canvas.css) makes clicks
+  // pass through to the pane so the canvas pans over it.
+  const toggleNodeLock = useCallback(
+    (id: string) => {
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id !== id) return n;
+          const locked = !(n.data as { locked?: boolean }).locked;
+          return {
+            ...n,
+            draggable: locked ? false : undefined,
+            selectable: locked ? false : undefined,
+            connectable: locked ? false : undefined,
+            selected: locked ? false : n.selected,
+            className: locked ? "cv-node-locked" : undefined,
+            data: { ...n.data, locked },
+          };
+        }),
+      );
+      scheduleSave();
+    },
+    [setNodes, scheduleSave],
+  );
+
+  const tools = useMemo<CanvasTools>(
+    () => ({ updateNodeData, toggleNodeLock }),
+    [updateNodeData, toggleNodeLock],
+  );
 
   const handleNodesChange = useCallback(
     (changes: Parameters<typeof onNodesChange>[0]) => {

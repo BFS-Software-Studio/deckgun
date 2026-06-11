@@ -7,9 +7,15 @@ import {
   type NodeProps,
 } from "@xyflow/react";
 import { useCanvasTools, withAlpha } from "./CanvasContext";
+import { LockBadge } from "./LockBadge";
 
 export type ShapeKind = "rectangle" | "ellipse";
-export type ShapeNodeData = { shape: ShapeKind; color?: string; text?: string };
+export type ShapeNodeData = {
+  shape: ShapeKind;
+  color?: string;
+  text?: string;
+  locked?: boolean;
+};
 export type ShapeNodeType = Node<ShapeNodeData, "shape">;
 
 const SIDES: Position[] = [
@@ -29,6 +35,7 @@ function ShapeNodeComponent({ id, data, selected }: NodeProps<ShapeNodeType>) {
       className={`cv-shape cv-shape-${data.shape}`}
       style={{ borderColor: color, background: withAlpha(color, 0.1) }}
     >
+      <LockBadge id={id} locked={!!data.locked} />
       <NodeResizer
         minWidth={48}
         minHeight={40}

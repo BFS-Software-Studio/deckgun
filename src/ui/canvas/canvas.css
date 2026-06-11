@@ -225,6 +225,53 @@
   opacity: 1;
 }
 
+/* ── Node lock (Figma-style) ─────────────────────────────────────────── */
+/* A locked node ignores pointer events so clicks fall through to the pane and
+   pan the canvas; the lock badge below re-enables events just for itself. */
+.react-flow__node.cv-node-locked {
+  pointer-events: none;
+}
+
+.cv-lock-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 20;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  padding: 0;
+}
+
+.cv-lock-badge:hover {
+  background: var(--hover);
+}
+
+/* Unlocked: only reveal on node hover, and don't steal clicks while hidden. */
+.cv-lock-badge.unlocked {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.react-flow__node:hover .cv-lock-badge.unlocked {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Locked: always visible, and clickable even though the node itself isn't. */
+.cv-lock-badge.locked {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* ── Resize controls (shared) ────────────────────────────────────────── */
 .cv-resize-line {
   border-color: var(--accent);
