@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp -r ../deckgun/src/core src/core)",
+      "Bash(cp -r ../deckgun/src/ui src/ui)",
+      "Bash(mkdir -p src/platform)",
+      "Bash(cp ../deckgun/src/platform/Platform.ts src/platform/Platform.ts)",
+      "Bash(cp ../deckgun/src/platform/PlatformProvider.tsx src/platform/PlatformProvider.tsx)",
+      "WebFetch(domain:beyondloom.com)",
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)"
+    ]
+  }
+}

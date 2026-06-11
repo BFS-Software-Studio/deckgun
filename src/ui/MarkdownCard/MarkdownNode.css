@@ -21,7 +21,7 @@
      card to reveal more content. */
   overflow: hidden;
   color: var(--text);
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -136,12 +136,11 @@
 
 .mermaid-error {
   margin: 0.5em 0;
-  padding: 8px 10px;
-  font-size: 0.8em;
-  color: #b00020;
-  background: #fdecef;
-  border-radius: 6px;
-  white-space: pre-wrap;
+  padding: 6px 10px;
+  font-size: 0.82em;
+  color: var(--text-muted);
+  background: var(--hover);
+  border: 1px solid var(--border-subtle);
 }
 
 /* Connection handles. */

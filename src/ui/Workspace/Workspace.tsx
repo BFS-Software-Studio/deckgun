@@ -29,7 +29,7 @@ function PageView({ controller }: { controller: WorkspaceController }) {
   return <DocPage key={page.id} pageId={page.id} controller={controller} />;
 }
 
-export function Workspace() {
+export function Workspace({ name }: { name?: string }) {
   const controller = useWorkspace();
 
   if (!controller.workspace) {
@@ -38,7 +38,7 @@ export function Workspace() {
 
   return (
     <div className="ws-root">
-      <Sidebar controller={controller} />
+      <Sidebar controller={controller} title={name} />
       <main className="ws-main">
         <PageView controller={controller} />
       </main>

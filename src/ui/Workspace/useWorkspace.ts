@@ -5,11 +5,13 @@ import {
   addPage,
   deleteNode,
   emptyWorkspace,
+  moveNode,
   renameNode,
   seedWorkspace,
   setActivePage,
   setPageContent,
   toggleExpanded,
+  type PageBundle,
   type PageContent,
   type PageKind,
   type Workspace,
@@ -20,6 +22,7 @@ export interface WorkspaceActions {
   newPage(targetId: string | null, name: string, kind: PageKind): string | null;
   rename(id: string, name: string): void;
   remove(id: string): void;
+  move(nodeId: string, targetId: string | null): void;
   select(id: string | null): void;
   toggleFolder(id: string): void;
   updatePageContent(pageId: string, content: PageContent): void;
@@ -27,6 +30,10 @@ export interface WorkspaceActions {
   // (possibly still-debounced) content into the workspace. Used to flush on
   // app close/hide so the last edits aren't lost. Returns an unregister fn.
   registerActiveFlush(flush: () => void): () => void;
+  // Replace the whole workspace (import).
+  replaceWorkspace(ws: Workspace): void;
+  // Add an imported page (fresh id) under targetId (or root). Returns its id.
+  importPage(bundle: PageBundle, targetId: string | null): string | null;
 }
 
 export interface WorkspaceController extends WorkspaceActions {
@@ -178,6 +185,15 @@ export function useWorkspace(): WorkspaceController {
     [apply],
   );
 
+  const move = useCallback(
+    (nodeId: string, targetId: string | null) => {
+      const ws = wsRef.current;
+      if (!ws) return;
+      apply(moveNode(ws, nodeId, targetId));
+    },
+    [apply],
+  );
+
   const select = useCallback(
     (id: string | null) => {
       const ws = wsRef.current;
@@ -205,15 +221,41 @@ export function useWorkspace(): WorkspaceController {
     [apply],
   );
 
+  const replaceWorkspace = useCallback(
+    (ws: Workspace) => {
+      apply(ws);
+    },
+    [apply],
+  );
+
+  const importPage = useCallback(
+    (bundle: PageBundle, targetId: string | null) => {
+      const ws = wsRef.current;
+      if (!ws) return null;
+      const { workspace: next, id } = addPage(
+        ws,
+        targetId,
+        bundle.node.name,
+        bundle.node.kind,
+      );
+      apply(setPageContent(next, id, bundle.content));
+      return id;
+    },
+    [apply],
+  );
+
   return {
     workspace,
     newFolder,
     newPage,
     rename,
     remove,
+    move,
     select,
     toggleFolder,
     updatePageContent,
     registerActiveFlush,
+    replaceWorkspace,
+    importPage,
   };
 }

@@ -39,7 +39,11 @@ export function MermaidDiagram({ code }: { code: string }) {
   }, [code]);
 
   if (error) {
-    return <pre className="mermaid-error">{error}</pre>;
+    return (
+      <div className="mermaid-error" title={error}>
+        Couldn't render this diagram.
+      </div>
+    );
   }
 
   if (svg === null) {

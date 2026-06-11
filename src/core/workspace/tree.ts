@@ -189,6 +189,40 @@ export function deleteNode(ws: Workspace, id: string): Workspace {
   return { ...ws, tree, pages, expanded, activePageId };
 }
 
+// Move a node under a target (folder → inside it; page → beside it; null →
+// root). No-op if it would move a folder into itself or one of its descendants.
+export function moveNode(
+  ws: Workspace,
+  nodeId: string,
+  targetId: string | null,
+): Workspace {
+  if (nodeId === targetId) return ws;
+
+  const moving = findNode(ws.tree, nodeId);
+  if (!moving) return ws;
+
+  // Can't drop a folder into its own subtree.
+  if (
+    moving.type === "folder" &&
+    targetId &&
+    findNode([moving], targetId) != null
+  ) {
+    return ws;
+  }
+
+  const containerId = resolveContainerId(ws, targetId);
+  if (containerId === nodeId) return ws;
+
+  const { tree: without, removed } = removeNode(ws.tree, nodeId);
+  if (!removed) return ws;
+
+  const tree = insertNode(without, containerId, removed);
+  const expanded = containerId
+    ? { ...ws.expanded, [containerId]: true }
+    : ws.expanded;
+  return { ...ws, tree, expanded };
+}
+
 export function setActivePage(ws: Workspace, id: string | null): Workspace {
   // Keep the invariant "activePageId is null or points at a real page".
   if (id !== null && !getPageNode(ws, id)) return ws;

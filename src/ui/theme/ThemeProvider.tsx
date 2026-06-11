@@ -19,7 +19,6 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    // localStorage works in both the desktop webview and a future web build.
     return localStorage.getItem(STORAGE_KEY) === "dark" ? "dark" : "light";
   });
 

@@ -1,49 +1,59 @@
+/* DeckGun is an ASCII/terminal-styled app: monospace, square boxes, flat.
+   The only choice is the colour scheme — Light (phosphor paper) or Dark
+   (terminal). The structural ASCII rules below apply to both. */
+
 :root {
-  --app-bg: #ffffff;
-  --panel-bg: #f7f7f8;
-  --surface: #ffffff;
-  --hover: rgba(0, 0, 0, 0.05);
-  --selected: #dbe6fb;
-  --text: #1d1d1f;
-  --text-muted: #6e6e73;
-  --text-faint: #98989d;
-  --border: #e3e3e5;
-  --border-subtle: #ececef;
-  --accent: #2563eb;
-  --accent-text: #1d4ed8;
-  --accent-weak: rgba(37, 99, 235, 0.12);
-  --frost-bg: rgba(255, 255, 255, 0.74);
-  --frost-border: rgba(0, 0, 0, 0.07);
-  --card-bg: #ffffff;
-  --card-border: #e6e6e6;
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+  /* ASCII Light — phosphor paper, green ink */
+  --font: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo,
+    Consolas, "Liberation Mono", monospace;
+  --app-bg: #f3f5f1;
+  --panel-bg: #eaeee6;
+  --surface: #fbfdf8;
+  --hover: rgba(20, 50, 30, 0.07);
+  --selected: #f3d4d4;
+  --text: #16241b;
+  --text-muted: #5a6b5f;
+  --text-faint: #93a094;
+  --border: #2a3a30;
+  --border-subtle: #aebdb0;
+  --accent: #1e63d0;
+  --accent-text: #184fb0;
+  --accent-weak: rgba(30, 99, 208, 0.14);
+  --frost-bg: #fbfdf8;
+  --frost-border: #2a3a30;
+  --card-bg: #fbfdf8;
+  --card-border: #2a3a30;
+  --shadow-sm: none;
+  --shadow-lg: 2px 2px 0 rgba(42, 58, 48, 0.45);
 }
 
 :root[data-theme="dark"] {
-  --app-bg: #161618;
-  --panel-bg: #1d1d20;
-  --surface: #232327;
-  --hover: rgba(255, 255, 255, 0.07);
-  --selected: #2c3f63;
-  --text: #f2f2f4;
-  --text-muted: #a2a2aa;
-  --text-faint: #76767e;
-  --border: #34343a;
-  --border-subtle: #2c2c31;
-  --accent: #4f8cff;
-  --accent-text: #6ea0ff;
-  --accent-weak: rgba(79, 140, 255, 0.2);
-  --frost-bg: rgba(34, 34, 38, 0.8);
-  --frost-border: rgba(255, 255, 255, 0.09);
-  --card-bg: #26262b;
-  --card-border: #37373d;
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+  /* ASCII Dark — terminal */
+  --app-bg: #0f1411;
+  --panel-bg: #131a15;
+  --surface: #161d18;
+  --hover: rgba(120, 200, 140, 0.08);
+  --selected: #4a2630;
+  --text: #cfe6d4;
+  --text-muted: #7e9a85;
+  --text-faint: #5a7060;
+  --border: #33493a;
+  --border-subtle: #25351f;
+  --accent: #5b9bff;
+  --accent-text: #82b4ff;
+  --accent-weak: rgba(91, 155, 255, 0.18);
+  --frost-bg: #161d18;
+  --frost-border: #33493a;
+  --card-bg: #161d18;
+  --card-border: #33493a;
+  --shadow-sm: none;
+  --shadow-lg: 2px 2px 0 rgba(0, 0, 0, 0.6);
 }
 
 * {
   box-sizing: border-box;
+  /* Square boxes everywhere — the ASCII look. */
+  border-radius: 0 !important;
 }
 
 html,
@@ -54,11 +64,22 @@ body,
 }
 
 body {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--app-bg);
   color: var(--text);
+}
+
+/* Flat terminal chrome — drop the frosted-glass blur everywhere. */
+.cv-toolbar,
+.doc-toolbar,
+.doc-status,
+.canvas-hint,
+.ws-badge,
+.settings-popover {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .error-boundary {
@@ -90,9 +111,9 @@ body {
   white-space: pre-wrap;
   word-break: break-word;
   font-size: 12px;
-  color: #b00020;
-  background: #fdecef;
-  border-radius: 8px;
+  color: #c0392b;
+  background: var(--surface);
+  border: 1px solid var(--border);
 }
 
 .error-boundary-btn {
@@ -100,9 +121,8 @@ body {
   font: inherit;
   font-size: 13px;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--app-bg);
   background: var(--accent);
   border: none;
-  border-radius: 8px;
   cursor: pointer;
 }

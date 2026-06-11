@@ -426,7 +426,8 @@ function CanvasInner({
           onMoveEnd={scheduleSave}
           nodeTypes={nodeTypes}
           connectionMode={ConnectionMode.Loose}
-          colorMode={theme}
+          colorMode={theme === "dark" ? "dark" : "light"}
+          deleteKeyCode={["Delete", "Backspace"]}
           defaultViewport={initial.viewport}
           fitView={!initial.viewport}
           minZoom={0.1}

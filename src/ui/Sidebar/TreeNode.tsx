@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Workspace, WorkspaceNode } from "@core/workspace";
 
 interface TreeNodeProps {
@@ -13,6 +13,8 @@ interface TreeNodeProps {
   onCommitRename: (id: string, value: string) => void;
   onCancelRename: () => void;
   onDelete: (node: WorkspaceNode) => void;
+  onExport: (node: WorkspaceNode) => void;
+  onMove: (nodeId: string, targetId: string | null) => void;
 }
 
 function RenameInput({
@@ -69,8 +71,11 @@ export function TreeNode(props: TreeNodeProps) {
     onCommitRename,
     onCancelRename,
     onDelete,
+    onExport,
+    onMove,
   } = props;
 
+  const [dragOver, setDragOver] = useState(false);
   const isFolder = node.type === "folder";
   const expanded = isFolder ? workspace.expanded[node.id] !== false : false;
   const selected = node.id === selectedId;
@@ -86,9 +91,28 @@ export function TreeNode(props: TreeNodeProps) {
   return (
     <>
       <div
-        className={`tree-row${selected ? " selected" : ""}`}
+        className={`tree-row${selected ? " selected" : ""}${dragOver ? " drag-over" : ""}`}
         style={{ paddingLeft: depth * 14 + 8 }}
         onClick={() => onSelect(node)}
+        draggable={!editing}
+        onDragStart={(e) => {
+          e.stopPropagation();
+          e.dataTransfer.setData("text/plain", node.id);
+          e.dataTransfer.effectAllowed = "move";
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          if (!dragOver) setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setDragOver(false);
+          const draggedId = e.dataTransfer.getData("text/plain");
+          if (draggedId) onMove(draggedId, node.id);
+        }}
       >
         {isFolder ? (
           <span
@@ -132,6 +156,18 @@ export function TreeNode(props: TreeNodeProps) {
           >
             ✎
           </button>
+          {!isFolder && (
+            <button
+              className="tree-action"
+              title="Export page"
+              onClick={(e) => {
+                e.stopPropagation();
+                onExport(node);
+              }}
+            >
+              ⤓
+            </button>
+          )}
           <button
             className="tree-action"
             title="Delete"
@@ -161,6 +197,8 @@ export function TreeNode(props: TreeNodeProps) {
             onCommitRename={onCommitRename}
             onCancelRename={onCancelRename}
             onDelete={onDelete}
+            onExport={onExport}
+            onMove={onMove}
           />
         ))}
     </>

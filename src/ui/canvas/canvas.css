@@ -125,7 +125,7 @@
   width: 100%;
   height: 100%;
   padding: 6px 8px;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font);
   font-size: 15px;
   line-height: 1.4;
   white-space: pre-wrap;
@@ -167,7 +167,7 @@
 .cv-shape-input {
   width: 100%;
   text-align: center;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font);
   font-size: 14px;
   font-weight: 500;
   padding: 6px;

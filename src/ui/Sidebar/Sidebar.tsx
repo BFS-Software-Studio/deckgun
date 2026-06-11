@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { findNode, type PageKind, type WorkspaceNode } from "@core/workspace";
+import {
+  exportPageJSON,
+  findNode,
+  type PageKind,
+  type WorkspaceNode,
+} from "@core/workspace";
+import { downloadJSON, safeFilename } from "../util/files";
 import type { WorkspaceController } from "../Workspace/useWorkspace";
 import { NewPageDialog } from "../components/NewPageDialog";
 import { ConfirmDialog } from "../components/ConfirmDialog";
@@ -7,12 +13,19 @@ import { TreeNode } from "./TreeNode";
 import { SettingsMenu } from "./SettingsMenu";
 import "./Sidebar.css";
 
-export function Sidebar({ controller }: { controller: WorkspaceController }) {
+export function Sidebar({
+  controller,
+  title = "DeckGun",
+}: {
+  controller: WorkspaceController;
+  title?: string;
+}) {
   const { workspace } = controller;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newPageOpen, setNewPageOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [rootDragOver, setRootDragOver] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<{
     id: string;
     name: string;
@@ -52,6 +65,16 @@ export function Sidebar({ controller }: { controller: WorkspaceController }) {
     setPendingDelete({ id: node.id, name: node.name });
   }
 
+  function handleExport(node: WorkspaceNode) {
+    if (node.type !== "page" || !workspace) return;
+    const json = exportPageJSON(workspace, node.id);
+    if (json) downloadJSON(`${safeFilename(node.name)}.json`, json);
+  }
+
+  function handleMove(draggedId: string, targetId: string | null) {
+    controller.move(draggedId, targetId);
+  }
+
   function confirmDelete() {
     if (!pendingDelete || !workspace) return;
 
@@ -71,7 +94,7 @@ export function Sidebar({ controller }: { controller: WorkspaceController }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <span className="sidebar-title">DeckGun</span>
+        <span className="sidebar-title">{title}</span>
         <div className="sidebar-tools">
           <button
             className="sidebar-tool"
@@ -90,7 +113,26 @@ export function Sidebar({ controller }: { controller: WorkspaceController }) {
         </div>
       </div>
 
-      <div className="sidebar-tree">
+      <div
+        className={`sidebar-tree${rootDragOver ? " root-drag-over" : ""}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          if (!rootDragOver) setRootDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          // Only clear when the pointer actually leaves the container.
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setRootDragOver(false);
+          }
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setRootDragOver(false);
+          const draggedId = e.dataTransfer.getData("text/plain");
+          if (draggedId) handleMove(draggedId, null);
+        }}
+      >
         {workspace.tree.length === 0 ? (
           <div className="sidebar-empty">
             No pages yet.
@@ -112,6 +154,8 @@ export function Sidebar({ controller }: { controller: WorkspaceController }) {
               onCommitRename={handleCommitRename}
               onCancelRename={() => setEditingId(null)}
               onDelete={handleDelete}
+              onExport={handleExport}
+              onMove={handleMove}
             />
           ))
         )}
@@ -126,7 +170,11 @@ export function Sidebar({ controller }: { controller: WorkspaceController }) {
           Settings
         </button>
         {settingsOpen && (
-          <SettingsMenu onClose={() => setSettingsOpen(false)} />
+          <SettingsMenu
+            onClose={() => setSettingsOpen(false)}
+            controller={controller}
+            title={title}
+          />
         )}
       </div>
 
